@@ -1,4 +1,4 @@
-/// A binary heap is a data structure to represent ordered data. It is commonly used to implement priority queues.
+/// BinHeap is an implementation of a binary heap.
 /// 
 /// # Examples
 /// ```
@@ -10,9 +10,10 @@
 /// priorityQueue.push(1);
 /// priorityQueue.push(7);
 /// 
-/// assert_eq!(priorityQueue.pop(), 1);
-/// assert_eq!(priorityQueue.pop(), 3);
-/// assert_eq!(priorityQueue.pop(), 7);
+/// assert_eq!(priorityQueue.pop(), Some(1));
+/// assert_eq!(priorityQueue.pop(), Some(3));
+/// assert_eq!(priorityQueue.pop(), Some(7));
+/// assert_eq!(priorityQueue.pop(), None);
 /// ```
 #[derive(Debug)]
 pub struct BinHeap<T: Ord> {
@@ -21,20 +22,28 @@ pub struct BinHeap<T: Ord> {
 
 impl<T: Ord> BinHeap<T> {
 
-    /// Creates a new empty heap with the given [Order].
+    /// Creates a new empty heap.
     pub fn new() -> BinHeap<T> {
         BinHeap {
             heap: Vec::<T>::new()
         }
     }
 
-    /// Pushes a new element of type T onto the heap.
+    /// Pushes a new element of type [T][Ord] onto the heap.
+    /// Max runtime of O(log n).
+    /// 
+    /// # Panic
+    /// [push()](BinHeap::push) doesn't panic by itself, but the via [T][Ord] provided [cmp()](Ord::cmp) can panic. If it does, no memory is leaked and nothing unsafe happens, but the heap state may be disrupted, so it can't be used reliably afterwards.
     pub fn push(&mut self, element: T) {
         self.heap.push(element);
         self.sift_up(self.heap.len() - 1);
     }
 
-    /// Pops the lowest element (defined by the [Order]), aka. the root of the heap. Returns [None] if the heap is empty.
+    /// Pops the lowest element, aka. the root of the heap. Returns [None] if the heap is empty.
+    /// Max runtime of O(log n).
+    /// 
+    /// # Panic
+    /// [pop()](BinHeap::pop) doesn't panic by itself, but the via [T][Ord] provided [cmp()](Ord::cmp) can panic. If it does, no memory is leaked and nothing unsafe happens, but the heap state may be disrupted, so it can't be used reliably afterwards.
     pub fn pop(&mut self) -> Option<T> {
         if self.heap.is_empty() {
             return None;
@@ -46,10 +55,13 @@ impl<T: Ord> BinHeap<T> {
     }
 
     /// Returns an immutable reference to the root or [None] if the heap is empty. A mutable reference can't be obtained, since mutation of an element could destroy the heap invariant. To mutate the root, pop, mutate and push it back on the heap.
-    pub fn root(&self) -> Option<&T> {
+    /// Max runtime of O(1).
+    pub fn min(&self) -> Option<&T> {
         self.heap.get(0)
     }
 
+    /// Takes the node at the index 'node' and "sift's it down", which means, it takes the node and swappes it with the smallest of its childred, until the heap invariant is restored.
+    /// Max runtime of O(log n)
     fn sift_down(&mut self, node: usize) {
         let left = node * 2 + 1;
         let right = node * 2 + 2;
@@ -67,6 +79,8 @@ impl<T: Ord> BinHeap<T> {
         }
     }
 
+    /// Takes the node at the index 'node' and "sift's it up", which means, it takes the node and swappes it with its parent, until the heap invariant is restored.
+    /// Max runtime of O(log n)
     fn sift_up(&mut self, node: usize) {
         let parent = node / 2;
         while node > 0 && self.heap[node].cmp(&self.heap[parent]).is_le() {

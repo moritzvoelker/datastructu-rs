@@ -8,7 +8,7 @@ fn main() {
     heap.push(10);
 
 
-    println!("Root: {}", heap.root().unwrap());
+    println!("Root: {}", heap.min().unwrap());
     println!("Values:");
 
     while let Some(value) = heap.pop() {
