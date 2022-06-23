@@ -1,59 +1,30 @@
-use std::cmp::Ordering;
-
 /// A binary heap is a data structure to represent ordered data. It is commonly used to implement priority queues.
 /// 
 /// # Examples
 /// ```
-/// use binheap::{BinHeap, Asc};
+/// use binheap::BinHeap;
 /// 
-/// let mut priorityQueue = BinHeap::new(Asc);
+/// let mut priorityQueue = BinHeap::new();
 /// 
 /// priorityQueue.push(3);
 /// priorityQueue.push(1);
 /// priorityQueue.push(7);
 /// 
-/// while let Some(value) = priorityQueue.pop() {
-///     println!("{value}");
-/// }
+/// assert_eq!(priorityQueue.pop(), 1);
+/// assert_eq!(priorityQueue.pop(), 3);
+/// assert_eq!(priorityQueue.pop(), 7);
 /// ```
 #[derive(Debug)]
-pub struct BinHeap<T: Ord, O: Order<T>> {
+pub struct BinHeap<T: Ord> {
     heap: Vec<T>,
-    order: O,
 }
 
-/// Defines the Order in which the elements are retrieved from the Queue. There are two implementations given, [Asc] and [Desc].
-pub trait Order<T: Ord> {
-    fn cmp(&self, first: &T, second: &T) -> Ordering;
-    fn is_le(&self, first: &T, second: &T) -> bool {
-        self.cmp(first, second).is_le()
-    }
-}
-
-/// Defines an ascending order of elements.
-pub struct Asc;
-/// Defines a descending order of elements.
-pub struct Desc;
-
-impl<T: Ord> Order<T> for Asc {
-    fn cmp(&self, first: &T, second: &T) -> Ordering {
-        first.cmp(second)
-    }
-}
-impl<T: Ord> Order<T> for Desc {
-    fn cmp(&self, first: &T, second: &T) -> Ordering {
-        second.cmp(first)
-    }
-}
-
-
-impl<T: Ord, O: Order<T>> BinHeap<T, O> {
+impl<T: Ord> BinHeap<T> {
 
     /// Creates a new empty heap with the given [Order].
-    pub fn new(order: O) -> BinHeap<T, O> {
+    pub fn new() -> BinHeap<T> {
         BinHeap {
-            heap: Vec::<T>::new(),
-            order
+            heap: Vec::<T>::new()
         }
     }
 
@@ -84,12 +55,12 @@ impl<T: Ord, O: Order<T>> BinHeap<T, O> {
         let right = node * 2 + 2;
         if node * 2 + 1 < self.heap.len() {
             let no_right = right >= self.heap.len();
-            let other = if no_right || self.order.is_le(&self.heap[left], &self.heap[right]) {
+            let other = if no_right || self.heap[left].cmp(&self.heap[right]).is_le() {
                 left
             } else {
                 right
             };
-            if self.order.is_le(&self.heap[other], &self.heap[node]) {
+            if self.heap[other].cmp(&self.heap[node]).is_le() {
                 self.heap.swap(other, node);
                 self.sift_down(other)
             }
@@ -98,7 +69,7 @@ impl<T: Ord, O: Order<T>> BinHeap<T, O> {
 
     fn sift_up(&mut self, node: usize) {
         let parent = node / 2;
-        while node > 0 && self.order.is_le(&self.heap[node], &self.heap[parent]) {
+        while node > 0 && self.heap[node].cmp(&self.heap[parent]).is_le() {
             self.heap.swap(node, parent);
             self.sift_up(parent);
         }
