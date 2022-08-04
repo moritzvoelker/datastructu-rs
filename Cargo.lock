@@ -3,5 +3,5 @@
 version = 3
 
 [[package]]
-name = "binheap"
+name = "datastructu-rs"
 version = "0.1.0"
